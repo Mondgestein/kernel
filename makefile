@@ -102,7 +102,7 @@ XLINK=wlink
 endif
 #ALLCFLAGS=-DDEBUG
 
--include config.mak
+-include ../config.mak
 ifdef XUPX
   UPXOPT=-U
 endif

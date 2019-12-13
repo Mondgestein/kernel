@@ -18,13 +18,13 @@ SYS_EXE_dependencies =  \
  talloc.obj
 
 #		*Explicit Rules*
-production:     bin2c.exe ../bin/sys.com
+production:     bin2c.exe ../../binaries/sys.com
 
 bin2c.exe:      bin2c.c
 		$(CLC) bin2c.c
 
-../bin/sys.com: sys.com
-		$(CP) sys.com ..$(DIRSEP)bin
+../../binaries/sys.com: sys.com
+		$(CP) sys.com ..$(DIRSEP)..$(DIRSEP)binaries
 
 fat12com.h:	../boot/fat12com.bin bin2c.exe
 		.$(DIRSEP)bin2c.exe ../boot/fat12com.bin fat12com.h fat12com

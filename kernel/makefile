@@ -27,12 +27,10 @@ OBJS=$(OBJS1) $(OBJS2) $(OBJS3) $(OBJS4) $(OBJS5) $(OBJS6) $(OBJS7) $(OBJS8)
 
 #               *Explicit Rules*
 
-production:     ../bin/$(TARGET).sys ../bin/country.sys
+production:     ../../binaries/kernel.sys ../../binaries/country.sys
 
-../bin/$(TARGET).sys: kernel.sys
-		$(CP) kernel.sys ..$(DIRSEP)bin
-		$(CP) kernel.sys ..$(DIRSEP)bin$(DIRSEP)$(TARGET).sys
-		$(CP) kernel.map ..$(DIRSEP)bin$(DIRSEP)$(TARGET).map
+../../binaries/kernel.sys: kernel.sys
+		$(CP) kernel.sys ..$(DIRSEP)..$(DIRSEP)binaries
 
 # -S to avoid showing expected relocations
 # 0x10 & 0x78 or 0x79 depending on compilation options
@@ -42,8 +40,8 @@ kernel.sys:	kernel.exe ../utils/exeflat.exe
 kernel.exe:	$(TARGET).lnk $(OBJS) $(LIBS)
 		$(LINK) @$(TARGET).lnk;
 
-../bin/country.sys: country.asm
-		$(NASM) -o ../bin/country.sys country.asm
+../../binaries/country.sys: country.asm
+		$(NASM) -o ../../binaries/country.sys country.asm
 
 clobber:        clean
 		-$(RM) kernel.exe kernel.sys status.me

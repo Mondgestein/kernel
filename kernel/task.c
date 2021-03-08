@@ -242,6 +242,9 @@ STATIC UWORD patchPSP(UWORD pspseg, UWORD envseg, exec_blk FAR * exb,
   mcb FAR *pspmcb;
   int i;
   BYTE FAR *np;
+  BYTE s_name[13];
+  BYTE FAR *len;
+  BYTE FAR *setptr = setverPtr;
 
   pspmcb = MK_FP(pspseg, 0);
   ++pspseg;
@@ -286,6 +289,25 @@ set_name:
   }
   if (i < 8)
     pspmcb->m_name[i] = '\0';
+
+  if (setptr != NULL)
+  {
+    for (i = 0; i < 12 && np[i] != '\0'; i++)
+    {
+      s_name[i] = toupper(np[i]);
+    }
+
+    while (*(len = setptr) != 0)
+    {
+      if ((*len == i) && (fmemcmp(s_name, setptr + 1, *len) == 0))
+      {
+        psp->ps_retdosver = *((UWORD FAR *)(setptr + *len + 1));
+        break;
+      }
+
+      setptr = setptr + *len + 3;
+    }
+  }
 
   /* return value: AX value to be passed based on FCB values */
   return (get_cds1(psp->ps_fcb1.fcb_drive) ? 0 : 0xff) |

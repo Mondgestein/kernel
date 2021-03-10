@@ -92,6 +92,33 @@ ULONG SftGetFsize(int sft_idx)
   return s->sft_size;
 }
 
+STATIC UWORD SetverGetVersion(BYTE FAR *table, BYTE FAR *name)
+{
+  BYTE FAR *len;
+  BYTE s_name[13];
+  int i;
+  
+  if ((table != NULL) && (name != NULL))
+  {
+    for (i = 0; i < 12 && name[i] != '\0'; i++)
+    {
+      s_name[i] = toupper(name[i]);
+    }
+
+    while (*(len = table) != 0)
+    {
+      if ((*len == i) && (fmemcmp(s_name, table + 1, *len) == 0))
+      {
+        return *((UWORD FAR *)(table + *len + 1));
+      }
+
+      table = table + *len + 3;
+    }
+  }
+
+  return 0;
+}
+
 STATIC COUNT ChildEnv(exec_blk * exp, UWORD * pChildEnvSeg, char far * pathname)
 {
   BYTE FAR *pSrc;
@@ -242,9 +269,7 @@ STATIC UWORD patchPSP(UWORD pspseg, UWORD envseg, exec_blk FAR * exb,
   mcb FAR *pspmcb;
   int i;
   BYTE FAR *np;
-  BYTE s_name[13];
-  BYTE FAR *len;
-  BYTE FAR *setptr = setverPtr;
+  UWORD fakever;
 
   pspmcb = MK_FP(pspseg, 0);
   ++pspseg;
@@ -290,23 +315,9 @@ set_name:
   if (i < 8)
     pspmcb->m_name[i] = '\0';
 
-  if (setptr != NULL)
+  if ((fakever = SetverGetVersion(setverPtr, np)) != 0)
   {
-    for (i = 0; i < 12 && np[i] != '\0'; i++)
-    {
-      s_name[i] = toupper(np[i]);
-    }
-
-    while (*(len = setptr) != 0)
-    {
-      if ((*len == i) && (fmemcmp(s_name, setptr + 1, *len) == 0))
-      {
-        psp->ps_retdosver = *((UWORD FAR *)(setptr + *len + 1));
-        break;
-      }
-
-      setptr = setptr + *len + 3;
-    }
+    psp->ps_retdosver = fakever;
   }
 
   /* return value: AX value to be passed based on FCB values */

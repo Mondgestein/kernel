@@ -92,22 +92,33 @@ ULONG SftGetFsize(int sft_idx)
   return s->sft_size;
 }
 
+STATIC WORD SetverCompareFilename(BYTE FAR *m1, BYTE FAR *m2, COUNT c)
+{
+  while (c--)
+  {
+    if (toupper(*m1) != toupper(*m2))
+    {
+      return *m1 - *m2;
+    }
+
+    m1 = m1 + 1; m2 = m2 + 1;
+  }
+
+  return 0;
+}
+
 STATIC UWORD SetverGetVersion(BYTE FAR *table, BYTE FAR *name)
 {
   BYTE FAR *len;
-  BYTE s_name[13];
-  int i;
+  COUNT nlen;
   
   if ((table != NULL) && (name != NULL))
   {
-    for (i = 0; i < 12 && name[i] != '\0'; i++)
-    {
-      s_name[i] = toupper(name[i]);
-    }
-
+    nlen = fstrlen(name);
+    
     while (*(len = table) != 0)
     {
-      if ((*len == i) && (fmemcmp(s_name, table + 1, *len) == 0))
+      if ((*len == nlen) && (SetverCompareFilename(name, table + 1, *len) == 0))
       {
         return *((UWORD FAR *)(table + *len + 1));
       }
